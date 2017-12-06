@@ -16,7 +16,7 @@ You are NOT allowed to import anything else.
 Following is a skeleton code which follows a Scikit style API.
 Make necessary changes, where required, to get it correctly running.
 
-Note: Running this empty template code might throw some error because 
+Note: Running this empty template code might throw some error because
 currently some return values are not as per the required API. You need to
 change them.
 
@@ -26,32 +26,35 @@ Good Luck!
 
 # ===== Helper Function for Plotting - DO NOT EDIT =============
 def boundary(w):
-    boundary_x1 = np.array([0,1])
-    boundary_x2 = -(w[0]*boundary_x1+w[2])/w[1]
-    midpt = np.array([0.5,-(w[0]*0.5+w[2])/w[1]])
-    vec = (w[:2])/np.linalg.norm(w[:2])
-    endpt = midpt + 0.1*vec
-    xvec = np.array([midpt[0],endpt[0]])
-    yvec = np.array([midpt[1],endpt[1]])
-    return (boundary_x1,boundary_x2), (xvec,yvec)
+    boundary_x1 = np.array([0, 1])
+    boundary_x2 = -(w[0] * boundary_x1 + w[2]) / w[1]
+    midpt = np.array([0.5, -(w[0] * 0.5 + w[2]) / w[1]])
+    vec = (w[:2]) / np.linalg.norm(w[:2])
+    endpt = midpt + 0.1 * vec
+    xvec = np.array([midpt[0], endpt[0]])
+    yvec = np.array([midpt[1], endpt[1]])
+    return (boundary_x1, boundary_x2), (xvec, yvec)
+
 
 def plot_boundary(w, quiet=True):
     bndry, direction = boundary(w)
-    b1,b2 = bndry
+    b1, b2 = bndry
     if not quiet:
         color = 'black'
-        plt.plot(b1,b2,'-',color=color,label='decision\nboundary')
+        plt.plot(b1, b2, '-', color=color, label='decision\nboundary')
     else:
         color = 'lightgray'
-        plt.plot(b1,b2,'-',color=color)
-    xvec,yvec = direction
-    plt.plot(xvec,yvec,'o-',color=color)
+        plt.plot(b1, b2, '-', color=color)
+    xvec, yvec = direction
+    plt.plot(xvec, yvec, 'o-', color=color)
 
 # =============================================================
 
+
 class LogisticRegression:
     def __init__(self,  alpha=1e-2):
-        self.w = np.array([0,-1,.5]) # You can use these as the initial values for the weights
+        # You can use these as the initial values for the weights
+        self.w = np.array([0, -1, .5])
 
     def fit(self, X, Y, epochs=10000):
         """
@@ -63,12 +66,13 @@ class LogisticRegression:
         IMP: Make use of self.w to ensure changes in the weight are reflected globally.
             We will be making use of get_params and set_params to check for correctness
         """
-        step = 0.0001 # set the value for step parameter
+        step = 0.0001  # set the value for step parameter
         for t in range(epochs):
             # WRITE the required CODE HERE to update the parameters using gradient descent
             # make use of self.loss_grad() function
             if t % 100 == 0:
                 plot_boundary(self.w)
+            self.w = self.w - step * self.loss_grad(self.w, X, Y)
 
     def predict(self, X):
         """
@@ -78,7 +82,11 @@ class LogisticRegression:
         """
 
         # WRITE the required CODE HERE and return the computed values
-        return 0
+        predict_result = []
+        for input in X:
+            pred = self.w.dot(input)
+            predict_result.append(pred)
+        return predict_result
 
     def loss(self, w, X, Y):
         """
@@ -89,7 +97,11 @@ class LogisticRegression:
         """
 
         # WRITE the required CODE HERE and return the computed values
-        return 0
+        nb_samples = X.shape[0]
+        sum_loss = 0.0
+        for i in range(nb_samples):
+            sum_loss += self.loss_helper(X[i], Y[i])
+        return sum_loss / nb_samples
 
     def loss_grad(self, w, X, y):
         """
@@ -101,7 +113,11 @@ class LogisticRegression:
         :return: vector of size (3,) containing gradients for each weight
         """
         # WRITE the required CODE HERE and return the computed values
-        return 0
+        matrix = X.dot(w)
+        sig = self.sigmoid(matrix)
+        computed_matrix = (sig - y).T
+        computed_loss = computed_matrix.dot(X)
+        return computed_loss
 
     def get_params(self):
         """
@@ -119,6 +135,16 @@ class LogisticRegression:
         """
         self.w = w
         return 0
+
+    def sigmoid(self, matrix):
+        denominator = 1 + np.exp(-1 * matrix)
+        return 1 / denominator
+
+    def loss_helper(self, x, y):
+        matrix = self.w.T.dot(x)
+        sig = self.sigmoid(matrix)
+        computed_loss = -y * np.log(sig) - (1 - y) * np.log(1 - sig)
+        return computed_loss
 
 
 if __name__ == '__main__':

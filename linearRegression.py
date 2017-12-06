@@ -18,7 +18,7 @@ You are NOT allowed to import anything else.
 Following is a skeleton code which follows a Scikit style API.
 Make necessary changes, where required, to get it correctly running.
 
-Note: Running this empty template code might throw some error because 
+Note: Running this empty template code might throw some error because
 currently some return values are not as per the required API. You need to
 change them.
 
@@ -47,17 +47,20 @@ class LinearRegression:
                 # WRITE the required CODE HERE to update the parameters using gradient descent
                 # make use of self.loss_grad() function
                 if t % 100 == 0:
-                    print("Epoch: {} :: loss: {}".format(t, self.loss(self.w, X, y)))
+                    print("Epoch: {} :: loss: {}".format(
+                        t, self.loss(self.w, X, y)))
 
                 self.w = self.w - step * self.loss_grad(self.w, X, Y)
 
         elif self.flag == 'Analytic':
-            pass
             # Remember: matrix inverse in NOT equal to matrix**(-1)
             # WRITE the required CODE HERE to update the weights using closed form solution
+            inverse = self.pseudoinverse(X)
+            self.w = np.dot(inverse, Y)
 
         else:
-            raise ValueError('flag can only be either: ''GradientDescent'' or ''Analytic''')
+            raise ValueError(
+                'flag can only be either: ''GradientDescent'' or ''Analytic''')
 
     def predict(self, X):
         """
@@ -85,11 +88,11 @@ class LinearRegression:
         # WRITE the required CODE HERE and return the computed values
         total_loss = 0.0
         for i in range(X.shape[0]):
-            single_loss = np.dot(w.T,X[i]) - Y[i]
+            single_loss = np.dot(w.T, X[i]) - Y[i]
             single_loss_sq = np.square(single_loss)
             total_loss += single_loss_sq
         norm_weight = np.sum(np.square(w))
-        return total_loss/2 + self.alpha*norm_weight
+        return total_loss / 2 + self.alpha * norm_weight
 
     def loss_grad(self, w, X, y):
         """
@@ -125,6 +128,10 @@ class LinearRegression:
         self.w = w
         return 0
 
+    def pseudoinverse(self, X):
+        A_a = np.dot(X.T, X) + 2 * self.alpha * np.eye(X.shape[1])
+        A_a_inverse = np.linalg.inv(A_a).dot(X.T)
+        return A_a_inverse
 
 
 if __name__ == '__main__':
@@ -134,13 +141,13 @@ if __name__ == '__main__':
 
     # Linear regression with gradient descent
     model = LinearRegression(flag='GradientDescent')
-    model.fit(X,y)
+    model.fit(X, y)
     y_grad = model.predict(X)
     w_grad = model.get_params()
 
     # Analytic Linear regression
     model = LinearRegression(flag='Analytic')
-    model.fit(X,y)
+    model.fit(X, y)
     y_exact = model.predict(X)
     w_exact = model.get_params()
 

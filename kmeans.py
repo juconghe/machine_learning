@@ -18,7 +18,7 @@ You are NOT allowed to import anything else.
 Following is a skeleton code which follows a Scikit style API.
 Make necessary changes, where required, to get it correctly running.
 
-Note: Running this empty template code might throw some error because 
+Note: Running this empty template code might throw some error because
 currently some return values are not as per the required API. You need to
 change them.
 
@@ -51,9 +51,13 @@ class kmeans():
         :param iterations: Maximum number of iterations, Integer scalar
         :return: None
         """
+        print(X)
         self.C = -np.ones(np.shape(X)[0],dtype=int) # Initializing which center does each sample belong to
 
         # WRITE the required CODE for learning HERE
+        for itr in range(iterations):
+            self.cluster = self.assign_clusters(X, self.C, self.centroids)
+            self.centroids = self.update_centroids(X, self.C, self.centroids)
 
         return 0
 

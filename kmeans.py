@@ -51,12 +51,11 @@ class kmeans():
         :param iterations: Maximum number of iterations, Integer scalar
         :return: None
         """
-        print(X)
         self.C = -np.ones(np.shape(X)[0],dtype=int) # Initializing which center does each sample belong to
 
         # WRITE the required CODE for learning HERE
         for itr in range(iterations):
-            self.cluster = self.assign_clusters(X, self.C, self.centroids)
+            self.C = self.assign_clusters(X, self.C, self.centroids)
             self.centroids = self.update_centroids(X, self.C, self.centroids)
 
         return 0
@@ -71,8 +70,25 @@ class kmeans():
         Recompute centroids
         """
         # WRITE the required CODE HERE and return the computed values
+        new_centroids = np.zeros((self.K,2))
+        means = []
+        for i in range(self.K):
+            means.append(np.array([[0,0]]))
 
-        return np.zeros((K, 2))
+        for i in range(len(C)):
+            x = X[i]
+            centroid = int(C[i])
+            # print(centroid)
+            # print(means[centroid])
+            means[centroid] = np.append(means[centroid],[x],axis=0)
+
+        for mean_index in range(len(means)):
+            m = means[mean_index][1:]
+            x_mean = np.mean(m[:,0])
+            y_mean = np.mean(m[:,1])
+            new_centroids[mean_index] = [x_mean, y_mean]
+
+        return new_centroids
 
     def assign_clusters(self, X, C, centroids):
         """
@@ -84,8 +100,18 @@ class kmeans():
         Assign data points to clusters
         """
         # WRITE the required CODE HERE and return the computed values
+        new_clusters = np.zeros(len(X))
+        for x in range(len(X)):
+            potential_centroid = 0
+            dist = np.linalg.norm(X[x] - centroids[0])
+            for i in range(len(centroids)):
+                temp_dist = np.linalg.norm(X[x] - centroids[i])
+                if temp_dist < dist:
+                    potential_centroid = i
+                    dist = temp_dist
+            new_clusters[x] = potential_centroid
 
-        return 0
+        return new_clusters
 
     def get_clusters(self):
         """

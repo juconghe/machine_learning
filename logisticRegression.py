@@ -72,6 +72,8 @@ class LogisticRegression:
             # make use of self.loss_grad() function
             if t % 100 == 0:
                 plot_boundary(self.w)
+                print("Epoch: {} :: loss: {}".format(
+                    t, self.loss(self.w, X, y)))
             self.w = self.w - step * self.loss_grad(self.w, X, Y)
 
     def predict(self, X):

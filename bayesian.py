@@ -54,14 +54,13 @@ class Posterior:
         lime = 1
         for d in range(self.N):
             temp_sum = 0.0
-            alpha = self.compute_alpha(hypotheses, prior)
+            alpha = self.compute_alpha(d, hypotheses, prior)
             for i in range(1, len(hypotheses) + 1):
                 p_lime = hypotheses[i][lime] * prior[i - 1]
-                product = (hypotheses[i][lime]) ** (i-1)
+                product = (hypotheses[i][lime]) ** (d)
                 temp_sum += (p_lime * product)
-            new_lime[d] = temp_sum / alpha
-            print(new_lime[d])
-            prior = self.update_prior(hypotheses, prior)
+            new_lime[d] = temp_sum * alpha
+            # print(new_lime[d])
         return new_lime
 
     def get_infinite(self):
@@ -73,24 +72,18 @@ class Posterior:
 
         return np.zeros(self.N)
 
-    def update_prior(self, hypotheses, prior):
+    def h_given_lime(self,d, h, p, alpha):
         lime = 1
-        alpha = self.compute_alpha(hypotheses, prior)
-        new_prior = np.zeros(len(prior))
-        for i in range(1, len(hypotheses) + 1):
-            p_lime = hypotheses[i][lime] * prior[i - 1]
-            new_prior[i - 1] = p_lime / alpha
+        p_h_given_lime = alpha * (h[lime]**d)*p
+        return p_h_given_lime
 
-        return new_prior
-
-    def compute_alpha(self, hypotheses, prior):
+    def compute_alpha(self,d, hypotheses, prior):
         alpha = 0.0
         lime = 1
         for i in range(1, len(hypotheses) + 1):
-            p_lime = hypotheses[i][lime] * prior[i - 1]
+            p_lime = (hypotheses[i][lime] ** d) * prior[i - 1]
             alpha += p_lime
-        return alpha
-
+        return 1.0/alpha
 
 if __name__ == '__main__':
     # Get data

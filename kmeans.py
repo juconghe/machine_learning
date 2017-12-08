@@ -83,7 +83,7 @@ class kmeans():
             means[centroid] = np.append(means[centroid],[x],axis=0)
 
         for mean_index in range(len(means)):
-            m = means[mean_index][1:]
+            m = means[mean_index][1:,]
             x_mean = np.mean(m[:,0])
             y_mean = np.mean(m[:,1])
             new_centroids[mean_index] = [x_mean, y_mean]

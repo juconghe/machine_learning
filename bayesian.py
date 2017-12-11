@@ -17,7 +17,7 @@ You are NOT allowed to import anything else.
 Following is a skeleton code which follows a Scikit style API.
 Make necessary changes, where required, to get it correctly running.
 
-Note: Running this empty template code might throw some error because 
+Note: Running this empty template code might throw some error because
 currently some return values are not as per the required API. You need to
 change them.
 
@@ -39,29 +39,11 @@ class Posterior:
         :return: MAP estimates for diff. values of lime; shape:(N,)
         """
         # WRITE the required CODE HERE and return the computed values
-        prior = np.array([0.1, 0.2, 0.4, 0.2, 0.1])
-        hypotheses = {1: (1.0, 0), 2: (0.75, 0.25), 3: (0.5, 0.5), 4: (0.25, 0.75), 5: (0, 1.0)}
-        lime = 1
-        h_map = 1
-        current_max = -float("inf")
+        # (c+a−1)/(c+l+a+b−2)
         result = []
-        for h, value in hypotheses.items():
-            temp = 0
-            for d in range(self.N):
-                v_lime = 0 if value[lime] == 0 else np.log(value[lime])
-                pri_lime = 0 if prior[h - 1] == 0 else np.log(prior[h - 1])
-                p_lime = v_lime + pri_lime
-                temp += p_lime
-            if temp > current_max:
-                h_map = h
-                current_max = temp
-
-        for d in range(1, self.N + 1):
-            alpha = 1 / (
-            (hypotheses[h_map][lime] ** d) * prior[h_map - 1] + (hypotheses[h_map][0] ** d) * prior[h_map - 1])
-            p_lime = (hypotheses[h_map][lime] * prior[h_map - 1]) ** d
-            result.append(p_lime * alpha)
-
+        for lime in self.limes:
+            h_map = 1 - (self.cherries + self.a - 1)/(self.cherries+lime+self.a+self.b-2)
+            result.append(h_map)
         return result
 
     def get_finite(self):

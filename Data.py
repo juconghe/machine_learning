@@ -38,7 +38,7 @@ class Data:
                             [True, False],
                             [True, False],
                             ['None', 'Some', 'Full'],
-                            ['$', '$$$'],
+                            ['$', '$$','$$$'],
                             [True, False],
                             [True, False],
                             ['French', 'Thai', 'Burger', 'Italian'],

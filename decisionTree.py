@@ -22,6 +22,7 @@ change them.
 Good Luck!
 """
 
+
 class Node(object):
     def __init__(self, att_idx=None, att_values=None, answer=None):
         self.att_idx = att_idx
@@ -34,6 +35,7 @@ class Node(object):
             return self.answer
         att = sample[self.att_idx]
         return self.branches[att].route(sample)
+
 
 class DecisionTree:
     def __init__(self):
@@ -51,8 +53,10 @@ class DecisionTree:
         self.attribute_map = dict(zip(attribute_names, attribute_values))
         self.P = sum([example[-1] for example in examples])
         self.N = len(examples) - self.P
-        self.H_Data = self.H(self.P/(self.P+self.N))  # this is B on p.704 - to be used in InfoGain
+        self.H_Data = self.H(self.P / (self.P + self.N))  # this is B on p.704 - to be used in InfoGain
         self.root = self.DTL(examples, attribute_names)
+        # self.ExpectedH('Pat', examples)
+        # print(self.attribute_idxs)
 
     def DTL(self, examples, attribute_names, default=True):
         """
@@ -62,7 +66,32 @@ class DecisionTree:
         :return: the root node of the decision tree
         """
         # WRITE the required CODE HERE and return the computed values
-        return None
+        if len(examples) == 0:
+            return None
+        elif self.is_same(examples):
+            leaf = Node()
+            leaf.answer = examples[0][-1]
+            return leaf
+        elif len(attribute_names) == 0:
+            return None
+        else:
+            best_attribute = self.chooseAttribute(attribute_names, examples)
+            tree = Node(self.attribute_idxs[best_attribute], self.attribute_map[best_attribute])
+            partition_dict = self.partition_given_attribute(examples, best_attribute)
+
+            # print(best_attribute)
+            # print(partition_dict.keys())
+            # name is the name of the attribute value of the given attribute
+            # value is dictionary of pos and neg, each is a list of list of training data
+            for name, values in partition_dict.items():
+                new_examples = values['pos'] + values['neg']
+                subtree = self.DTL(new_examples, attribute_names)
+                if subtree is not None:
+                    # print(name)
+                    tree.branches[name] = subtree
+
+            return tree
+
 
     def mode(self, answers):
         """
@@ -73,14 +102,16 @@ class DecisionTree:
         # WRITE the required CODE HERE and return the computed values
         return None
 
-    def H(self,p):
+    def H(self, p):
         """
         Compute the entropy of a binary distribution.
         :param p: p, the probability of a positive sample
         :return: the entropy (float)
         """
         # WRITE the required CODE HERE and return the computed values
-        return None
+        pos_entropy = p * np.log2(p) if p > 0 else 0
+        neg_entropy = (1 - p) * np.log2(1 - p) if p < 1 else 0
+        return -(pos_entropy + neg_entropy)
 
     def ExpectedH(self, attribute_name, examples):
         """
@@ -90,7 +121,16 @@ class DecisionTree:
         :return: the expected entropy (float)
         """
         # WRITE the required CODE HERE and return the computed values
-        return None
+        POS = 'pos'
+        NEG = 'neg'
+        partitions = self.partition_given_attribute(examples, attribute_name)
+        total_entropy = 0.0
+        for values in partitions.values():
+            branch_total = len(values[POS]) + len(values[NEG])
+            p = len(values[POS]) / branch_total if branch_total != 0 else 0
+            total_entropy += (branch_total / len(examples)) * self.H(p)
+        # print(total_entropy)
+        return total_entropy
 
     def InfoGain(self, attribute_name, examples):
         """
@@ -99,7 +139,7 @@ class DecisionTree:
         :param examples: input data, a list of lists (len num attributes)
         :return: the information gain (float)
         """
-        return self.H_Data - self.ExpectedH(attribute_name,examples)
+        return self.H_Data - self.ExpectedH(attribute_name, examples)
 
     def chooseAttribute(self, attribute_names, examples):
         """
@@ -110,7 +150,7 @@ class DecisionTree:
         """
         InfoGains = []
         for att in attribute_names:
-            InfoGains += [self.InfoGain(att,examples)]
+            InfoGains += [self.InfoGain(att, examples)]
         return attribute_names[np.argmax(InfoGains)]
 
     def predict(self, X):
@@ -122,7 +162,17 @@ class DecisionTree:
         # WRITE the required CODE HERE and return the computed values
         # prediction should be a simple matter of recursively routing
         # a sample starting at the root node
-        return None
+        myroot  = self.root
+        predict_result = []
+        for x in X:
+            while(True):
+                attribute = x[myroot.att_idx]
+                if myroot.branches[attribute].answer is not None:
+                    predict_result.append(myroot.branches[attribute].answer)
+                    break
+                else:
+                    myroot = myroot.branches[attribute]
+        return predict_result
 
     def print(self):
         """
@@ -130,19 +180,39 @@ class DecisionTree:
         """
         self.print_tree(self.root)
 
-    def print_tree(self,node):
+    def print_tree(self, node):
         """
         Print the subtree given by node in a readable format.
         :param node: the root of the subtree to be printed
         """
         if len(node.branches) < 1:
-            print('\t\tanswer',node.answer)
+            print('\t\tanswer', node.answer)
         else:
             att_name = self.attribute_names[node.att_idx]
             for value, branch in node.branches.items():
-                print('att_name',att_name,'\tbranch_value',value)
+                print('att_name', att_name, '\tbranch_value', value)
                 self.print_tree(branch)
 
+    def partition_given_attribute(self, examples, attribute_name):
+        POS = 'pos'
+        NEG = 'neg'
+        partitions = {x: {POS: [], NEG: []} for x in self.attribute_map[attribute_name]}
+        for x in examples:
+            attribute = x[self.attribute_idxs[attribute_name]]
+            if x[-1]:
+                partitions[attribute][POS].append(x)
+            else:
+                partitions[attribute][NEG].append(x)
+
+        return partitions
+
+    def is_same(self, examples):
+        initial = examples[0]
+        for x in examples:
+            if initial[-1] != x[-1]:
+                return False
+
+        return True
 
 if __name__ == '__main__':
     # Get data

@@ -133,7 +133,6 @@ if __name__ == '__main__':
         model = kmeans(K)
         model.fit(X)
         C, centroids = model.get_clusters()
-
         # Plot final computed centroids with '*'
         plot_centroids(centroids, marker='*', scale=2)
 

@@ -39,8 +39,30 @@ class Posterior:
         :return: MAP estimates for diff. values of lime; shape:(N,)
         """
         # WRITE the required CODE HERE and return the computed values
+        prior = np.array([0.1, 0.2, 0.4, 0.2, 0.1])
+        hypotheses = {1: (1.0, 0), 2: (0.75, 0.25), 3: (0.5, 0.5), 4: (0.25, 0.75), 5: (0, 1.0)}
+        lime = 1
+        h_map = 1
+        current_max = -float("inf")
+        result = []
+        for h, value in hypotheses.items():
+            temp = 0
+            for d in range(self.N):
+                v_lime = 0 if value[lime] == 0 else np.log(value[lime])
+                pri_lime = 0 if prior[h - 1] == 0 else np.log(prior[h - 1])
+                p_lime = v_lime + pri_lime
+                temp += p_lime
+            if temp > current_max:
+                h_map = h
+                current_max = temp
 
-        return np.zeros(self.N)
+        for d in range(1, self.N + 1):
+            alpha = 1 / (
+            (hypotheses[h_map][lime] ** d) * prior[h_map - 1] + (hypotheses[h_map][0] ** d) * prior[h_map - 1])
+            p_lime = (hypotheses[h_map][lime] * prior[h_map - 1]) ** d
+            result.append(p_lime * alpha)
+
+        return result
 
     def get_finite(self):
         """
@@ -72,18 +94,19 @@ class Posterior:
 
         return np.zeros(self.N)
 
-    def h_given_lime(self,d, h, p, alpha):
+    def h_given_lime(self, d, h, p, alpha):
         lime = 1
-        p_h_given_lime = alpha * (h[lime]**d)*p
+        p_h_given_lime = alpha * (h[lime] ** d) * p
         return p_h_given_lime
 
-    def compute_alpha(self,d, hypotheses, prior):
+    def compute_alpha(self, d, hypotheses, prior):
         alpha = 0.0
         lime = 1
         for i in range(1, len(hypotheses) + 1):
             p_lime = (hypotheses[i][lime] ** d) * prior[i - 1]
             alpha += p_lime
-        return 1.0/alpha
+        return 1.0 / alpha
+
 
 if __name__ == '__main__':
     # Get data

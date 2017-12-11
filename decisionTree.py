@@ -79,8 +79,6 @@ class DecisionTree:
             tree = Node(self.attribute_idxs[best_attribute], self.attribute_map[best_attribute])
             partition_dict = self.partition_given_attribute(examples, best_attribute)
 
-            # print(best_attribute)
-            # print(partition_dict.keys())
             # name is the name of the attribute value of the given attribute
             # value is dictionary of pos and neg, each is a list of list of training data
             for name, values in partition_dict.items():
@@ -165,7 +163,7 @@ class DecisionTree:
         myroot  = self.root
         predict_result = []
         for x in X:
-            while(True):
+            while True:
                 attribute = x[myroot.att_idx]
                 if myroot.branches[attribute].answer is not None:
                     predict_result.append(myroot.branches[attribute].answer)

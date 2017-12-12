@@ -220,6 +220,10 @@ if __name__ == '__main__':
     # Decision tree trained with max info gain for choosing attributes
     model = DecisionTree()
     model.fit(examples, attribute_names, attribute_values)
+    print(model.ExpectedH('Est',examples))
+    # print(model.partition_given_attribute(examples,'Pat'))
+    for key, value in model.partition_given_attribute(examples,'Est').items():
+        print(key,len(value['pos']),len(value['neg']))
     y = model.predict(examples)
     print(y)
-    model.print()
+    # model.print()

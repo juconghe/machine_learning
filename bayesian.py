@@ -56,7 +56,7 @@ class Posterior:
         prior = np.array([0.1, 0.2, 0.4, 0.2, 0.1])
         hypotheses = {1: (1.0, 0), 2: (0.75, 0.25), 3: (0.5, 0.5), 4: (0.25, 0.75), 5: (0, 1.0)}
         lime = 1
-        for d in range(self.N):
+        for d in self.limes:
             temp_sum = 0.0
             alpha = self.compute_alpha(d, hypotheses, prior)
             for i in range(1, len(hypotheses) + 1):
@@ -72,9 +72,13 @@ class Posterior:
         compute posterior with beta prior
         :return: estimates for diff. values of lime; shape:(N,)
         """
-        # WRITE the required CODE HERE and return the computed values
+        result = []
+        for N in range(self.N):
+            alpha = self.compute_infinite_beta(self.a + N, self.b)
+            p_lime = self.compute_infinite_beta(self.a + 1 + N, self.b) / alpha
+            result.append(p_lime)
 
-        return np.zeros(self.N)
+        return result
 
     def h_given_lime(self, d, h, p, alpha):
         lime = 1
@@ -89,6 +93,9 @@ class Posterior:
             alpha += p_lime
         return 1.0 / alpha
 
+    def compute_infinite_beta(self, a, b):
+        beta = gamma(a) * gamma(b) / gamma(a+b)
+        return beta
 
 if __name__ == '__main__':
     # Get data
